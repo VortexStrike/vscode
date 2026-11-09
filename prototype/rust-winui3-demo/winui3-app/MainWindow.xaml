@@ -2,14 +2,43 @@
     x:Class="WinUI3RustPrototype.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Rust + WinUI 3 Prototype"
-    Width="820"
-    Height="600">
+    Title="Rust + WinUI 3 Prototype">
 
-    <StackPanel Padding="24" Spacing="12">
-        <TextBlock Text="Rust + WinUI 3 Prototype" FontSize="28" FontWeight="SemiBold" />
-        <TextBlock x:Name="StatusText" Text="Connecting to backend..." FontSize="18" />
-        <Button x:Name="PingButton" Content="Ping backend" Click="PingButton_Click" Width="180" />
-        <TextBlock x:Name="ResponseText" Text="Waiting for response..." TextWrapping="WrapWholeWords" />
-    </StackPanel>
+    <Grid RowDefinitions="Auto,*,Auto" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
+            <AppBarButton Icon="OpenFolder" Label="Open Folder" Click="OpenFolder_Click" />
+            <AppBarButton Icon="Back" Label="Up" Click="Up_Click" />
+            <AppBarButton Icon="Refresh" Label="Refresh" Click="Refresh_Click" />
+            <AppBarButton Icon="Save" Label="Save" Click="Save_Click" />
+            <CommandBar.Content>
+                <TextBlock x:Name="WorkspaceRootText" VerticalAlignment="Center" Text="No workspace open" />
+            </CommandBar.Content>
+        </CommandBar>
+
+        <Grid Grid.Row="1" ColumnDefinitions="260,*">
+            <Border Grid.Column="0" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" Text="EXPLORER" Margin="12,10,8,8" FontSize="12" FontWeight="SemiBold" />
+                    <ListView x:Name="ExplorerList" Grid.Row="1" IsItemClickEnabled="True" ItemClick="ExplorerList_ItemClick" />
+                </Grid>
+            </Border>
+
+            <TabView x:Name="EditorTabs" Grid.Column="1" IsAddTabButtonVisible="False" TabCloseRequested="EditorTabs_TabCloseRequested">
+                <TabView.TabItems>
+                    <TabViewItem Header="Welcome">
+                        <Grid Padding="32">
+                            <StackPanel Spacing="10" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Text="Rust + WinUI 3" FontSize="28" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                <TextBlock Text="Open a folder to browse and edit text files." Opacity="0.75" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
+                    </TabViewItem>
+                </TabView.TabItems>
+            </TabView>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="10,5" Background="{ThemeResource SystemAccentColor}">
+            <TextBlock x:Name="StatusText" Text="Rust backend connection pending" Foreground="White" />
+        </Border>
+    </Grid>
 </Window>

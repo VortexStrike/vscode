@@ -1,70 +1,47 @@
 # Rust + WinUI 3 Prototype
 
-This prototype creates a minimal architecture for a desktop app that pairs a Rust backend with a Windows WinUI 3 frontend.
+A small Windows-native editor shell that explores a Rust workspace service behind a WinUI 3 interface. This is a prototype, not a replacement for the full VS Code editor or extension host.
 
-## Overview
+## What works
 
-- `rust-backend/` hosts a small local HTTP API written in Rust.
-- `winui3-app/` is a WinUI 3 desktop shell that calls the backend.
-- The design proves the integration shape without rewriting the full VS Code product.
+- Choose a workspace folder with the native Windows folder picker.
+- Browse folders and files in the Explorer pane.
+- Open multiple UTF-8 text files in editor tabs.
+- Edit the active tab and save it back to the workspace.
+- The Rust service confines browse/read/write operations to the selected workspace and does not follow symlinks while listing files.
 
-## Folder layout
+## Layout
 
 ```text
 prototype/rust-winui3-demo/
-├── README.md
-├── rust-backend/
-│   ├── Cargo.toml
-│   └── src/
-│       └── main.rs
-└── winui3-app/
-    ├── App.xaml
-    ├── App.xaml.cs
-    ├── MainWindow.xaml
-    ├── MainWindow.xaml.cs
-    └── WinUI3App.csproj
+├── rust-backend/   Rust + Axum workspace/file API
+└── winui3-app/     WinUI 3 Explorer and tabbed text editor
 ```
 
-## Why this shape works
+## Requirements
 
-The app keeps the expensive UI work in WinUI 3 and the data/workflow logic in Rust. The WinUI 3 screen does not need to own the full editor engine; it can instead call a local service, display state, and evolve toward a real shell by replacing the backend with your editor logic.
+- Rust toolchain with Cargo.
+- Windows 10 SDK and Visual Studio 2022 with the Windows App SDK / WinUI 3 workload.
+- The Windows app and Rust service run on the same machine.
 
-## Build and run
+## Run
 
-### 1) Start the Rust backend
+Start the Rust service from the repository root or pass an existing folder path as its initial workspace:
 
-```bash
+```powershell
 cd prototype/rust-winui3-demo/rust-backend
 cargo run
+# Or: cargo run -- "C:\\path\\to\\workspace"
 ```
 
-Expected result:
+The service binds only to `127.0.0.1:3030`. Then open `winui3-app/WinUI3App.csproj` in Visual Studio, select `Debug x64`, and run. Use **Open Folder** to choose a project directory.
 
-```text
-Rust backend running at http://127.0.0.1:3030
-```
+## API
 
-### 2) Open the WinUI 3 app in Visual Studio 2022
+- `GET /health` — backend status.
+- `GET /workspace?path=relative/path` — list one folder beneath the selected workspace.
+- `POST /workspace` with `{ "path": "C:\\project" }` — change the selected workspace.
+- `GET /file?path=relative/file.txt` — read a UTF-8 file.
+- `PUT /file` with `{ "path": "relative/file.txt", "content": "..." }` — save an existing file.
 
-- Open `prototype/rust-winui3-demo/winui3-app/WinUI3App.csproj` in Visual Studio.
-- Set the solution configuration to `Debug x64`.
-- Press F5 to run.
-
-The app sends a request to the backend and displays the response.
-
-## Current prototype behavior
-
-- `/health` returns app status JSON.
-- `/echo?message=hello` returns the echoed message.
-- The WinUI 3 button calls the backend and updates the UI.
-
-## Next extension path
-
-This prototype is intentionally minimal. The next steps would be:
-
-1. replace the placeholder status screen with document tabs and a shell layout,
-2. connect to file-system operations in Rust,
-3. add settings persistence and service registration,
-4. gradually migrate editor features behind the same Rust service boundary.
-
-This keeps the migration small, testable, and Windows-native while avoiding a risky full replacement of VS Code.
+The API rejects traversal outside the workspace. Writes are limited to existing files; creating, renaming, deleting, file watching, syntax highlighting, and language services are not implemented yet.
