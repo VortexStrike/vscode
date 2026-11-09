@@ -4,10 +4,27 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Rust + WinUI 3 Prototype">
 
+    <Window.Resources>
+        <DataTemplate x:Key="ExplorerItemTemplate">
+            <Grid Padding="3" RightTapped="ExplorerItem_RightTapped">
+                <Grid.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="Open" Tag="open" Click="EntryMenu_Click" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Text="New File" Tag="new-file" Click="EntryMenu_Click" />
+                        <MenuFlyoutItem Text="New Folder" Tag="new-folder" Click="EntryMenu_Click" />
+                        <MenuFlyoutItem Text="Rename" Tag="rename" Click="EntryMenu_Click" />
+                        <MenuFlyoutItem Text="Delete" Tag="delete" Click="EntryMenu_Click" />
+                    </MenuFlyout>
+                </Grid.ContextFlyout>
+                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
     <Grid RowDefinitions="Auto,*,Auto" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
             <AppBarButton Icon="OpenFolder" Label="Open Folder" Click="OpenFolder_Click" />
-            <AppBarButton Icon="Back" Label="Up" Click="Up_Click" />
             <AppBarButton Icon="Refresh" Label="Refresh" Click="Refresh_Click" />
             <AppBarButton Icon="Save" Label="Save" Click="Save_Click" />
             <CommandBar.Content>
@@ -19,7 +36,7 @@
             <Border Grid.Column="0" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
                 <Grid RowDefinitions="Auto,*">
                     <TextBlock Grid.Row="0" Text="EXPLORER" Margin="12,10,8,8" FontSize="12" FontWeight="SemiBold" />
-                    <ListView x:Name="ExplorerList" Grid.Row="1" IsItemClickEnabled="True" ItemClick="ExplorerList_ItemClick" />
+                    <TreeView x:Name="ExplorerTree" Grid.Row="1" ItemTemplate="{StaticResource ExplorerItemTemplate}" ItemInvoked="ExplorerTree_ItemInvoked" Expanding="ExplorerTree_Expanding" />
                 </Grid>
             </Border>
 
